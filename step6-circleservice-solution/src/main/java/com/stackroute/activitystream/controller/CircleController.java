@@ -1,9 +1,6 @@
 package com.stackroute.activitystream.controller;
 
 import java.util.List;
-
-import javax.servlet.http.HttpSession;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,10 +10,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 import com.stackroute.activitystream.model.Circle;
 import com.stackroute.activitystream.service.CircleService;
-import com.stackroute.activitystream.service.CircleServiceImpl;
+
 
 /*
  * As in this assignment, we are working with creating RESTful web service, hence annotate
@@ -26,7 +22,8 @@ import com.stackroute.activitystream.service.CircleServiceImpl;
  * format. Starting from Spring 4 and above, we can use @RestController annotation which 
  * is equivalent to using @Controller and @ResposeBody annotation
  */
-
+@RestController
+@RequestMapping("/api/circle")
 public class CircleController {
 
 	/*
@@ -42,7 +39,8 @@ public class CircleController {
 	 * 
 	 */
 	
-	
+	@Autowired
+	private CircleService circleService;
 	
 	/*
 	 * Autowiring should be implemented for the CircleService. Please note that 
@@ -62,7 +60,14 @@ public class CircleController {
 	 * 
 	 * This handler method should map to the URL "/api/circle" using HTTP POST method". 
 	*/
-	
+	@PostMapping
+	public ResponseEntity<Circle> createCircle(@RequestBody Circle circle){
+		if(circleService.get(circle.getCircleName())!=null) {
+			return new ResponseEntity<Circle>(HttpStatus.CONFLICT);
+		}
+		circleService.save(circle);
+		return new ResponseEntity<Circle>(circle,HttpStatus.CREATED);
+	}
 
 	
 	/* Define a handler method which will retrieve all the available circles.  
@@ -72,7 +77,10 @@ public class CircleController {
 	 * 
 	 * This handler method should map to the URL "/api/circle" using HTTP GET method". 
 	*/
-	
+	@GetMapping
+	public ResponseEntity<List<Circle>> getAllCircles(){
+		return new ResponseEntity<List<Circle>>(circleService.getAllCircles(), HttpStatus.OK);
+	}
 	
 
 	/* Define a handler method which will retrieve all the available circles matching a search keyword.  
@@ -83,6 +91,13 @@ public class CircleController {
 	 * This handler method should map to the URL "/api/circle/search/{searchString}" using HTTP GET method" where 
 	 * "searchString" should be replaced with the actual search keyword without the {}
 	*/
-	
+	@GetMapping(value="/search/{searchString}")
+	public ResponseEntity<List<Circle>> getCircle(@PathVariable("searchString")String searchString){
+		List<Circle> c = circleService.getAllCircles(searchString);
+		if(c !=null) {
+			return new ResponseEntity<List<Circle>>(c,HttpStatus.OK);
+		}
+		return new ResponseEntity<List<Circle>>(HttpStatus.NOT_FOUND);
+	}
 
 }

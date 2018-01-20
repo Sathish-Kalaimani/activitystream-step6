@@ -7,29 +7,40 @@ import org.springframework.stereotype.Service;
 
 import com.stackroute.activitystream.model.Circle;
 import com.stackroute.activitystream.repository.CircleRepository;
+import com.stackroute.activitystream.repository.UserRepository;
 
 /*
 * Service classes are used here to implement additional business logic/validation. 
 * This class has to be annotated with @Service annotation.
-* @Service - It is a specialization of the component annotation. It doesn’t currently 
-* provide any additional behavior over the @Component annotation, but it’s a good idea 
+* @Service - It is a specialization of the component annotation. It doesnï¿½t currently 
+* provide any additional behavior over the @Component annotation, but itï¿½s a good idea 
 * to use @Service over @Component in service-layer classes because it specifies intent 
 * better. Additionally, tool support and additional behavior might rely on it in the 
 * future.
 * */
-
+@Service
 public class CircleServiceImpl implements CircleService{
 	
 	/*
 	 * Autowiring should be implemented for the CircleRepository and UserRepository.
 	 *  Please note that we should not create any object using the new keyword
 	 * */
+	@Autowired
+	private UserRepository userRepository;
 	
+	@Autowired
+	private CircleRepository circleRepository;
 	/*
 	 * A circle should only be created if the circle does not already exist or the creatorId
 	 * is a valid username. 
 	 * */
 	public boolean save(Circle circle) {
+		
+		circle.getCreatedDate();
+		if(circleRepository.findOne(circle.getCircleName())==null || userRepository.findOne(circle.getCreatorId())==null) {
+			return false;
+		}
+		circleRepository.saveAndFlush(circle);
 		return false;
 		
 	}
@@ -39,7 +50,7 @@ public class CircleServiceImpl implements CircleService{
 	 * */
 	public List<Circle> getAllCircles() {
 		
-		return null;
+		return circleRepository.findAll();
 	}
 	
 	/*
@@ -48,7 +59,7 @@ public class CircleServiceImpl implements CircleService{
 	 * */
 	public List<Circle> getAllCircles(String searchString) {
 		
-		return null;
+		return circleRepository.findAll(searchString);
 	}
 	
 	/*
@@ -56,13 +67,18 @@ public class CircleServiceImpl implements CircleService{
 	 */
 	public Circle get(String circleName) {
 		
-		return null;
+		return circleRepository.findOne(circleName);
 	}
 	
 	/*
 	 * This method should delete a specific circle(if exists)
 	 */
 	public boolean delete(Circle circle) {
+		
+		if(circleRepository.findOne(circle.getCircleName())!=null) {
+			circleRepository.delete(circle);
+			return true;
+		}
 		return false;
 		
 	}

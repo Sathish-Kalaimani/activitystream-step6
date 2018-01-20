@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import com.stackroute.activitystream.model.Circle;
 
@@ -31,7 +32,7 @@ public interface CircleRepository extends JpaRepository<Circle, String>{
 	* Write query to find all circles matching with search string.
 	* */
 	
-	@Query
-	List<Circle> findAll(String searchString);
+	@Query("select circleName from Circle where circleName like :searchString")
+	List<Circle> findAll(@Param("searchString")String searchString);
 	
 }
